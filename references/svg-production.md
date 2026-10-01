@@ -74,6 +74,8 @@ If a node requires more than four lines, shorten the copy, enlarge the node, or 
 
 Use `data-boundary="x y width height"` on text-heavy groups when it helps review. Use `data-from`, `data-to`, and `data-relation` on connector paths so the validator can check references and reviewers can trace intent.
 
+For a process with defined traversal order, wrap its nodes, relations, and badges in a group with `data-ordered-flow="true"`. Give every ordered connector a positive integer `data-sequence` and add a visible badge group with the matching `data-sequence-label`.
+
 ## Connector construction
 
 - Markers and connector strokes use the same color.
@@ -83,6 +85,7 @@ Use `data-boundary="x y width height"` on text-heavy groups when it helps review
 - Orthogonal routes use deliberate bends; avoid 1–3 unit accidental gaps at segment joins.
 - Give long loop-back paths a dedicated outer lane and a clear return point.
 - If several relations converge, draw a semantic junction; otherwise route them separately.
+- For an Ordered Flow, show `1, 2, 3, 4…` on the connectors without gaps or duplicates. Position each Sequence Badge away from the arrowhead, relation label, and node boundary. The final badge in a loop belongs to the return connector.
 
 The Source SVG must remain understandable in grayscale. Color supplements labels, shapes, and line styles.
 
@@ -129,10 +132,10 @@ Then inspect the SVG and PNG side by side at the intended display size:
 - minimum padding and sibling gaps;
 - clipping at every viewBox edge;
 - each connector from source boundary to target boundary;
+- ordered connectors have contiguous visible Sequence Badges attached to the correct lines;
 - marker position and size;
 - consistent palette roles;
 - whitespace balance and reading order;
 - PNG dimensions and aspect ratio.
 
 For an edited diagram embedded in HTML or documentation, also inspect the final page and its responsive or fixed target viewport. A valid isolated SVG can still overflow its container.
-

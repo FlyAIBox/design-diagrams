@@ -28,6 +28,7 @@
 - 面向复杂主题的"总图 + 机制子图"结构
 - 可复用的项目 Style DNA 工作流，保证同一项目视觉一致
 - 稳定的术语、层级命名、颜色语义和连线语法
+- 为有序流程和闭环连线提供连续的 `1、2、3、4…` 序号标识
 - SVG 静态校验与浏览器 PNG 渲染脚本
 - 支持 `16:9`、`4:3`、`3:4` 和 `1:1` 画布
 
@@ -197,6 +198,7 @@ design-diagrams/
 ├── agents/
 │   └── openai.yaml           # Codex Agent 清单
 ├── assets/
+│   ├── ordered-flow-template.svg
 │   └── svg-style-template.svg
 ├── references/
 │   ├── design-resources.md   # 外部设计资源的用途与边界
@@ -214,4 +216,6 @@ design-diagrams/
 - 修改语义规格，定义当前主题的术语、证据状态、层级和关系类型。
 - 可以从 [`assets/svg-style-template.svg`](assets/svg-style-template.svg) 开始，
   但交付前必须替换全部示例内容、ID、标题和描述。
+- 有序流程或闭环需要在线路上显示 `1、2、3、4…` 时，使用
+  [`assets/ordered-flow-template.svg`](assets/ordered-flow-template.svg)。
 - 每次对 SVG 做实质修改后，都要重新生成 PNG，不能继续使用旧预览。

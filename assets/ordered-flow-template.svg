@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 1600 900"
+     width="1600"
+     height="900"
+     role="img"
+     aria-labelledby="ordered-template-title ordered-template-desc">
+  <title id="ordered-template-title">四步有序闭环模板</title>
+  <desc id="ordered-template-desc">四个节点按顺时针方向组成闭环，四条连接线分别显示一、二、三、四序号，箭头与序号共同表达方向和执行顺序。</desc>
+  <defs>
+    <style>
+      .zh { font-family: "Songti SC", SimSun, STSong, serif; fill: #242424; }
+      .en { font-family: "Times New Roman", Times, serif; fill: #242424; }
+      .title { font-size: 48px; font-weight: 700; }
+      .subtitle { font-size: 22px; fill: #555555; }
+      .node-title { font-size: 28px; font-weight: 700; }
+      .node-body { font-size: 21px; fill: #555555; }
+      .node { stroke: #3F3F3F; stroke-width: 2.5; vector-effect: non-scaling-stroke; }
+      .relation { fill: none; stroke: #8A6B19; stroke-width: 4; vector-effect: non-scaling-stroke; }
+      .badge { fill: #FFFFFF; stroke: #8A6B19; stroke-width: 3; vector-effect: non-scaling-stroke; }
+      .badge-number { font-family: "Times New Roman", Times, serif; font-size: 22px; font-weight: 700; text-anchor: middle; dominant-baseline: central; fill: #242424; }
+    </style>
+    <marker id="ordered-template-arrow" viewBox="0 0 10 10" refX="9" refY="5"
+            markerWidth="8" markerHeight="8" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8A6B19"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="900" fill="#FFFFFF"/>
+  <g id="ordered-template-heading">
+    <text x="80" y="88" class="zh title">有序流程 / 闭环</text>
+    <text x="80" y="128" class="zh subtitle">序号附着在线路上，箭头表达方向，序号表达先后。</text>
+  </g>
+
+  <g id="ordered-template-flow" data-ordered-flow="true">
+    <g id="ordered-template-relations">
+      <path id="ordered-template-relation-1" d="M 580 325 H 1020"
+            class="relation" marker-end="url(#ordered-template-arrow)"
+            data-from="ordered-template-step-1" data-to="ordered-template-step-2"
+            data-relation="flow" data-sequence="1"/>
+      <path id="ordered-template-relation-2" d="M 1230 430 V 570"
+            class="relation" marker-end="url(#ordered-template-arrow)"
+            data-from="ordered-template-step-2" data-to="ordered-template-step-3"
+            data-relation="flow" data-sequence="2"/>
+      <path id="ordered-template-relation-3" d="M 1020 665 H 580"
+            class="relation" marker-end="url(#ordered-template-arrow)"
+            data-from="ordered-template-step-3" data-to="ordered-template-step-4"
+            data-relation="flow" data-sequence="3"/>
+      <path id="ordered-template-relation-4" d="M 370 570 V 430"
+            class="relation" marker-end="url(#ordered-template-arrow)"
+            data-from="ordered-template-step-4" data-to="ordered-template-step-1"
+            data-relation="loop-back" data-sequence="4"/>
+    </g>
+
+    <g id="ordered-template-nodes">
+      <g id="ordered-template-step-1">
+        <rect x="160" y="220" width="420" height="210" rx="16" fill="#C4DCE6" class="node"/>
+        <text x="200" y="295" class="zh node-title">入口 / 接口</text>
+        <text x="200" y="342" class="zh node-body">定义闭环的明确起点</text>
+      </g>
+      <g id="ordered-template-step-2">
+        <rect x="1020" y="220" width="420" height="210" rx="16" fill="#FBE7A6" class="node"/>
+        <text x="1060" y="295" class="zh node-title">处理 / 调度</text>
+        <text x="1060" y="342" class="zh node-body">执行主要操作或决策</text>
+      </g>
+      <g id="ordered-template-step-3">
+        <rect x="1020" y="570" width="420" height="190" rx="16" fill="#E0E4CC" class="node"/>
+        <text x="1060" y="640" class="zh node-title">数据 / 上下文</text>
+        <text x="1060" y="687" class="zh node-body">保存并提供下一步输入</text>
+      </g>
+      <g id="ordered-template-step-4">
+        <rect x="160" y="570" width="420" height="190" rx="16" fill="#D2D2E0" class="node"/>
+        <text x="200" y="640" class="zh node-title">状态 / 生命周期</text>
+        <text x="200" y="687" class="zh node-body">判断是否回到流程起点</text>
+      </g>
+    </g>
+
+    <g id="ordered-template-sequence-badges" aria-label="流程顺序">
+      <g data-sequence-label="1">
+        <circle cx="800" cy="325" r="22" class="badge"/>
+        <text x="800" y="325" class="badge-number">1</text>
+      </g>
+      <g data-sequence-label="2">
+        <circle cx="1230" cy="500" r="22" class="badge"/>
+        <text x="1230" y="500" class="badge-number">2</text>
+      </g>
+      <g data-sequence-label="3">
+        <circle cx="800" cy="665" r="22" class="badge"/>
+        <text x="800" y="665" class="badge-number">3</text>
+      </g>
+      <g data-sequence-label="4">
+        <circle cx="370" cy="500" r="22" class="badge"/>
+        <text x="370" y="500" class="badge-number">4</text>
+      </g>
+    </g>
+  </g>
+
+  <text x="80" y="840" class="zh subtitle">交付前替换示例；保留连续序号与清晰箭头。</text>
+</svg>

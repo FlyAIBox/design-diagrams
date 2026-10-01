@@ -1,0 +1,181 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 1600 900"
+     width="1600"
+     height="900"
+     role="img"
+     preserveAspectRatio="xMidYMid meet"
+     aria-labelledby="ddbiz-title ddbiz-desc">
+  <title id="ddbiz-title">Design Diagrams Skill 业务关系图</title>
+  <desc id="ddbiz-desc">用户调用 Skill 后,Agent 依据用户指定的证据来源与 Skill 规范库建立语义规格并生成 Source SVG,运行校验与渲染脚本产出 PNG 预览,最终将 SVG 与 PNG 交付用户审阅,形成闭环。七条有向关系按执行顺序标注 1 至 7 的序号徽章。</desc>
+  <defs>
+    <style>
+      .zh { font-family: "Songti SC", SimSun, STSong, serif; fill: #242424; }
+      .en { font-family: "Times New Roman", Times, serif; fill: #242424; }
+      .title { font-size: 44px; font-weight: 700; }
+      .subtitle { font-size: 22px; fill: #555555; }
+      .node-title { font-size: 27px; font-weight: 700; }
+      .body { font-size: 22px; fill: #555555; }
+      .label { font-size: 19px; fill: #3F3F3F; }
+      .node { stroke: #3F3F3F; stroke-width: 2.5; vector-effect: non-scaling-stroke; }
+      .relation { fill: none; stroke: #3F3F3F; stroke-width: 3; vector-effect: non-scaling-stroke; }
+      .badge { fill: #FFFFFF; stroke: #3F3F3F; stroke-width: 2.5; vector-effect: non-scaling-stroke; }
+      .badge-number { font-family: "Times New Roman", Times, serif; font-size: 22px; font-weight: 700; text-anchor: middle; dominant-baseline: central; fill: #242424; }
+    </style>
+    <marker id="ddbiz-arrow" viewBox="0 0 10 10" refX="9" refY="5"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse"
+            markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#3F3F3F"/>
+    </marker>
+  </defs>
+
+  <rect id="ddbiz-background" width="1600" height="900" fill="#FFFFFF"/>
+
+  <g id="ddbiz-heading">
+    <text x="80" y="92" class="title"><tspan class="en">Design Diagrams</tspan><tspan class="zh" dx="14">业务关系图</tspan></text>
+    <text id="ddbiz-subtitle" x="80" y="132" class="zh subtitle">
+      <tspan x="80" dy="0">用户提供证据,Agent 按规范制图并经校验,交付 SVG 与 PNG</tspan>
+      <tspan dx="10" dy="0">(序号 1–7 表示执行顺序)</tspan>
+    </text>
+  </g>
+
+  <g id="ddbiz-flow" data-ordered-flow="true">
+    <g id="ddbiz-relations">
+      <path id="ddbiz-rel-invoke" class="relation" d="M 440 295 H 530 V 400 H 620"
+            marker-end="url(#ddbiz-arrow)"
+            data-from="ddbiz-user" data-to="ddbiz-agent"
+            data-relation="调用" data-sequence="1"/>
+      <path id="ddbiz-rel-ground" class="relation" d="M 440 685 H 530 V 520 H 620"
+            marker-end="url(#ddbiz-arrow)"
+            data-from="ddbiz-evidence" data-to="ddbiz-agent"
+            data-relation="建模依据" data-sequence="2"/>
+      <path id="ddbiz-rel-spec" class="relation" d="M 810 660 V 590"
+            marker-end="url(#ddbiz-arrow)"
+            data-from="ddbiz-knowledge" data-to="ddbiz-agent"
+            data-relation="提供规范" data-sequence="3"/>
+      <path id="ddbiz-rel-produce" class="relation" d="M 1000 400 H 1120 V 310 H 1180"
+            marker-end="url(#ddbiz-arrow)"
+            data-from="ddbiz-agent" data-to="ddbiz-deliverable"
+            data-relation="生成" data-sequence="4"/>
+      <path id="ddbiz-rel-run" class="relation" d="M 1000 520 H 1090 V 685 H 1180"
+            marker-end="url(#ddbiz-arrow)"
+            data-from="ddbiz-agent" data-to="ddbiz-scripts"
+            data-relation="运行" data-sequence="5"/>
+      <path id="ddbiz-rel-render" class="relation" d="M 1350 600 V 410"
+            marker-end="url(#ddbiz-arrow)"
+            data-from="ddbiz-scripts" data-to="ddbiz-deliverable"
+            data-relation="校验并渲染" data-sequence="6"/>
+      <path id="ddbiz-rel-deliver" class="relation" d="M 1350 210 V 160 H 270 V 210"
+            marker-end="url(#ddbiz-arrow)"
+            data-from="ddbiz-deliverable" data-to="ddbiz-user"
+            data-relation="交付审阅" data-sequence="7"/>
+    </g>
+
+    <g id="ddbiz-relation-labels">
+      <text x="452" y="281" class="zh label">调用 Skill</text>
+      <text x="455" y="666" class="zh label">建模依据</text>
+      <text x="845" y="634" class="zh label">术语 / 规范 / 流程</text>
+      <text x="1012" y="380" class="zh label">生成 SVG</text>
+      <text x="1012" y="503" class="zh label">运行脚本</text>
+      <text x="1150" y="518" class="zh label">校验并渲染 PNG</text>
+      <text x="430" y="150" class="zh label">交付审阅(SVG + PNG)</text>
+    </g>
+
+    <g id="ddbiz-sequence-badges" aria-label="执行顺序">
+      <g data-sequence-label="1">
+        <circle cx="530" cy="348" r="20" class="badge"/>
+        <text x="530" y="348" class="badge-number">1</text>
+      </g>
+      <g data-sequence-label="2">
+        <circle cx="530" cy="600" r="20" class="badge"/>
+        <text x="530" y="600" class="badge-number">2</text>
+      </g>
+      <g data-sequence-label="3">
+        <circle cx="810" cy="627" r="20" class="badge"/>
+        <text x="810" y="627" class="badge-number">3</text>
+      </g>
+      <g data-sequence-label="4">
+        <circle cx="1120" cy="355" r="20" class="badge"/>
+        <text x="1120" y="355" class="badge-number">4</text>
+      </g>
+      <g data-sequence-label="5">
+        <circle cx="1090" cy="600" r="20" class="badge"/>
+        <text x="1090" y="600" class="badge-number">5</text>
+      </g>
+      <g data-sequence-label="6">
+        <circle cx="1350" cy="520" r="20" class="badge"/>
+        <text x="1350" y="520" class="badge-number">6</text>
+      </g>
+      <g data-sequence-label="7">
+        <circle cx="1100" cy="160" r="20" class="badge"/>
+        <text x="1100" y="160" class="badge-number">7</text>
+      </g>
+    </g>
+  </g>
+
+  <g id="ddbiz-nodes">
+    <g id="ddbiz-user">
+      <rect x="100" y="210" width="340" height="170" rx="16" fill="#C4DCE6" class="node"/>
+      <text x="130" y="265" class="zh node-title">用户(User)</text>
+      <text x="130" y="310" class="zh body">
+        <tspan x="130" dy="0">提出制图请求与画布要求</tspan>
+        <tspan x="130" dy="34">审阅并确认交付物</tspan>
+      </text>
+    </g>
+    <g id="ddbiz-evidence">
+      <rect x="100" y="600" width="340" height="170" rx="16" fill="#E0E4CC" class="node"/>
+      <text x="130" y="655" class="zh node-title">证据来源(Evidence)</text>
+      <text x="130" y="700" class="zh body">
+        <tspan x="130" dy="0">用户指定的文档 / 源码</tspan>
+        <tspan x="130" dy="34">截图、数据字典等资料</tspan>
+      </text>
+    </g>
+    <g id="ddbiz-agent">
+      <rect x="620" y="330" width="380" height="260" rx="16" fill="#FBE7A6" class="node"/>
+      <text x="650" y="385" class="zh node-title">Agent 工作流</text>
+      <text x="650" y="430" class="en body">
+        <tspan x="650" dy="0">Claude Code / Codex / pi</tspan>
+      </text>
+      <text x="650" y="464" class="zh body">
+        <tspan x="650" dy="0">确认证据,建立语义规格</tspan>
+        <tspan x="650" dy="34">生成 SVG,渲染 2× PNG</tspan>
+      </text>
+    </g>
+    <g id="ddbiz-knowledge">
+      <rect x="620" y="660" width="380" height="160" rx="16" fill="#E0E4CC" class="node"/>
+      <text x="650" y="712" class="zh node-title">Skill 规范库</text>
+      <text x="650" y="755" class="en body">
+        <tspan x="650" dy="0">SKILL.md / CONTEXT.md</tspan>
+        <tspan x="650" dy="34" class="zh">references 规范与模板</tspan>
+      </text>
+    </g>
+    <g id="ddbiz-deliverable">
+      <rect x="1180" y="210" width="340" height="200" rx="16" fill="#E0E4CC" class="node"/>
+      <text x="1210" y="265" class="zh node-title">交付物(Deliverable)</text>
+      <text x="1210" y="310" class="zh body">
+        <tspan x="1210" dy="0">Source SVG(权威可编辑)</tspan>
+        <tspan x="1210" dy="34">PNG Preview(2× 高清)</tspan>
+      </text>
+    </g>
+    <g id="ddbiz-scripts">
+      <rect x="1180" y="600" width="340" height="170" rx="16" fill="#FBE7A6" class="node"/>
+      <text x="1210" y="655" class="zh node-title">校验与渲染脚本</text>
+      <text x="1210" y="700" class="en body">
+        <tspan x="1210" dy="0">validate_svg.py --strict</tspan>
+        <tspan x="1210" dy="34">render_svg.mjs --scale 2</tspan>
+      </text>
+    </g>
+  </g>
+
+  <g id="ddbiz-legend">
+    <rect x="80" y="826" width="36" height="24" fill="#C4DCE6" class="node"/>
+    <text x="128" y="844" class="zh body">入口 / 用户</text>
+    <rect x="300" y="826" width="36" height="24" fill="#FBE7A6" class="node"/>
+    <text x="348" y="844" class="zh body">处理 / 编排</text>
+    <rect x="520" y="826" width="36" height="24" fill="#E0E4CC" class="node"/>
+    <text x="568" y="844" class="zh body">数据 / 证据与交付物</text>
+    <circle cx="818" cy="838" r="14" class="badge"/>
+    <text x="818" y="838" class="badge-number" font-size="16">1</text>
+    <text x="848" y="844" class="zh body">执行顺序</text>
+    <text x="1150" y="844" class="zh body">基于仓库 main(含 Ordered Flow 规范)</text>
+  </g>
+</svg>

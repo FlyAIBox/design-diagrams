@@ -31,6 +31,7 @@ Along the way the skill gives you:
 - Overview diagrams plus focused mechanism diagrams for complex subjects
 - A reusable Project Style DNA workflow for consistent visuals across a project
 - Stable terminology, level names, color roles, and connector grammar
+- Numbered `1, 2, 3, 4…` connector badges for ordered processes and loops
 - Static SVG validation and browser-based PNG rendering scripts
 - Support for `16:9`, `4:3`, `3:4`, and `1:1` canvases
 
@@ -214,6 +215,7 @@ design-diagrams/
 ├── agents/
 │   └── openai.yaml           # Codex agent manifest
 ├── assets/
+│   ├── ordered-flow-template.svg
 │   └── svg-style-template.svg
 ├── references/
 │   ├── design-resources.md   # External design sources: roles and limits
@@ -233,4 +235,6 @@ design-diagrams/
   definitions, and relation types.
 - Use [`assets/svg-style-template.svg`](assets/svg-style-template.svg) as a starting
   point, but replace all sample content, IDs, title, and description.
+- Use [`assets/ordered-flow-template.svg`](assets/ordered-flow-template.svg) when a
+  process or loop needs connector-level `1, 2, 3, 4…` ordering.
 - Keep the source SVG editable and regenerate the PNG after every material change.

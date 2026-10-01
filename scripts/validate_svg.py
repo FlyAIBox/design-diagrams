@@ -114,6 +114,84 @@ def text_content(element: ET.Element) -> str:
     return "".join(element.itertext()).strip()
 
 
+def validate_ordered_flow(group: ET.Element, errors: list[str]) -> None:
+    """Validate connector-level 1..N ordering and matching visible badges."""
+    group_id = group.get("id", "unnamed ordered flow")
+    connectors = [
+        element
+        for element in group.iter()
+        if local_name(element.tag) in {"path", "line", "polyline"}
+        and element.get("marker-end")
+    ]
+    if not connectors:
+        errors.append(f"ordered flow '{group_id}' contains no directed connectors")
+        return
+
+    sequences: dict[int, str] = {}
+    for connector in connectors:
+        connector_id = connector.get("id", "unnamed connector")
+        raw_sequence = connector.get("data-sequence")
+        if raw_sequence is None:
+            errors.append(
+                f"ordered connector '{connector_id}' is missing data-sequence"
+            )
+            continue
+        if not re.fullmatch(r"[1-9]\d*", raw_sequence):
+            errors.append(
+                f"ordered connector '{connector_id}' has invalid data-sequence: {raw_sequence!r}"
+            )
+            continue
+        sequence = int(raw_sequence)
+        if sequence in sequences:
+            errors.append(
+                f"ordered flow '{group_id}' repeats sequence {sequence} "
+                f"on '{sequences[sequence]}' and '{connector_id}'"
+            )
+        sequences[sequence] = connector_id
+
+    if sequences:
+        expected = list(range(1, len(connectors) + 1))
+        actual = sorted(sequences)
+        if actual != expected:
+            errors.append(
+                f"ordered flow '{group_id}' must use contiguous 1..{len(connectors)} "
+                f"sequences; found {actual}"
+            )
+
+    badges: dict[int, list[ET.Element]] = {}
+    for element in group.iter():
+        raw_label = element.get("data-sequence-label")
+        if raw_label is None:
+            continue
+        if not re.fullmatch(r"[1-9]\d*", raw_label):
+            errors.append(
+                f"ordered flow '{group_id}' has invalid data-sequence-label: {raw_label!r}"
+            )
+            continue
+        badges.setdefault(int(raw_label), []).append(element)
+
+    for sequence in sequences:
+        matches = badges.get(sequence, [])
+        if not matches:
+            errors.append(
+                f"ordered flow '{group_id}' is missing visible badge {sequence}"
+            )
+        elif len(matches) > 1:
+            errors.append(
+                f"ordered flow '{group_id}' has multiple visible badges for sequence {sequence}"
+            )
+        elif text_content(matches[0]) != str(sequence):
+            errors.append(
+                f"badge {sequence} in ordered flow '{group_id}' must visibly contain '{sequence}'"
+            )
+
+    extra_badges = sorted(set(badges) - set(sequences))
+    if extra_badges:
+        errors.append(
+            f"ordered flow '{group_id}' has badges without matching connectors: {extra_badges}"
+        )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("svg", type=Path, help="SVG file to validate")
@@ -188,6 +266,16 @@ def main() -> int:
     if not any(font in raw for font in ("Songti SC", "SimSun", "STSong")):
         warnings.append("Songti/SimSun Chinese fallback stack is not declared")
 
+    ordered_groups = [
+        element
+        for element in root.iter()
+        if element.get("data-ordered-flow") == "true"
+    ]
+    for group in ordered_groups:
+        validate_ordered_flow(group, errors)
+    if ordered_groups:
+        print(f"Ordered flows: {len(ordered_groups)}")
+
     for element in root.iter():
         name = local_name(element.tag)
         if name in DISCOURAGED:
@@ -248,4 +336,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

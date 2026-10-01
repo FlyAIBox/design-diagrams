@@ -63,6 +63,7 @@ Not every diagram needs all five fills. Once a role is assigned in a Diagram Set
 - At 1600×900, use roughly 2 units for quiet boundaries, 2.5–3 for nodes, and 3–4 for primary relations.
 - Use moderate corner radii, normally 12–18 units. Avoid pill-shaped boxes unless the subject is literally a token, tag, or status chip.
 - Use one arrowhead family per Diagram Set. Arrowheads must remain legible in the PNG Preview.
+- For an Ordered Flow, use compact 30–36 unit Sequence Badges with high-contrast numerals. Keep badge geometry consistent, position it beside the relation rather than inside a node, and leave the arrowhead unobstructed.
 
 ## Anti-patterns
 
@@ -85,4 +86,3 @@ Extract only decisions that fit the content:
 5. interaction: only for an explicitly requested Interactive Variant.
 
 Rewrite those decisions using this project's vocabulary and tokens. Do not carry over brand colors, logos, product screenshots, unique illustrations, or ornamental effects merely because they appear in the donor.
-

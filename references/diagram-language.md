@@ -46,6 +46,20 @@ The overview should link conceptually to each detail through stable names or lev
 
 Never use an arrow merely to make the composition feel connected. A relation must have a source, target, verb, direction, and evidence status in the semantic brief.
 
+## Ordered flows and sequence badges
+
+When relations form a real process order or a closed execution loop, number the relations `1, 2, 3, 4…` in traversal order. The numbering belongs to the connector because it explains which directed transition happens next; a number placed only inside a node is not a substitute.
+
+- Start at `1`; use positive integers with no gaps or duplicates.
+- Place the Sequence Badge on or immediately beside the corresponding connector, normally near its first third or midpoint.
+- Keep it clear of arrowheads, bends, relation labels, node boundaries, and text.
+- Keep every arrowhead visible. Readers should understand direction from the arrowhead and order from the badge.
+- In a cycle, number the return connector last so the loop closure is explicit.
+- For a branch, share the last common number before the split, then label branches with the next independent step only when the domain defines their order. If branches are parallel, use branch labels rather than inventing a false numeric order.
+- Do not number architecture dependencies, containment, association, or other unordered relations.
+
+In SVG, mark the ordered group with `data-ordered-flow="true"`, each member connector with `data-sequence="N"`, and its visible badge group with `data-sequence-label="N"`. This lets static validation detect missing, duplicate, or non-contiguous numbering.
+
 ## Connector routing
 
 - Leave and enter nodes from explicit ports or unambiguous boundary points.
@@ -54,6 +68,7 @@ Never use an arrow merely to make the composition feel connected. A relation mus
 - Do not let separate relations share a long segment unless a visible junction has semantic meaning.
 - Crossings are acceptable only when no better layout exists; use a bridge or reroute so the paths cannot be mistaken for a junction.
 - A loop-back arrow must visibly return to the correct step, not terminate in empty space near it.
+- In an Ordered Flow, every Sequence Badge must be unambiguously attached to one connector and must not hide its arrowhead.
 
 ## Terminology
 
@@ -99,4 +114,3 @@ Within a node, prefer:
 3. at most two compact details.
 
 Use connector labels for what moves or why the relationship exists. Use adjacent notes for caveats. Use the prose surrounding the diagram for explanations that do not affect visual structure.
-

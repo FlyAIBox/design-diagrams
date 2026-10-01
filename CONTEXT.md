@@ -78,6 +78,14 @@ _Avoid_: Arrow style, connector theme
 A continuous relation path that visibly leaves its source boundary and reaches its target boundary without ambiguous shared segments, obstruction, or a detached marker.
 _Avoid_: Near-connected line, implied arrow
 
+**Ordered Flow**:
+A process or loop whose directed relations have a verified traversal order and are numbered continuously from 1 at the connector level.
+_Avoid_: Numbered layout, reading order
+
+**Sequence Badge**:
+A compact 1-based number visually attached to one directed relation in an Ordered Flow; it supplements the arrowhead and never replaces direction.
+_Avoid_: Node number, step decoration
+
 **Diagram Glossary**:
 The canonical vocabulary shared by every diagram in a Diagram Set; first use may pair a precise Chinese term with its canonical English term, while source identifiers remain unchanged.
 _Avoid_: Label list, translation table
