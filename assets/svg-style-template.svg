@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 1600 900"
+     width="1600"
+     height="900"
+     role="img"
+     aria-labelledby="template-title template-desc">
+  <title id="template-title">Diagram style template</title>
+  <desc id="template-desc">A minimal 16 by 9 template showing the default typography, semantic fills, and connector treatment. Replace all sample content and identifiers before delivery.</desc>
+  <defs>
+    <style>
+      .zh { font-family: "Songti SC", SimSun, STSong, serif; fill: #242424; }
+      .en { font-family: "Times New Roman", Times, serif; fill: #242424; }
+      .title { font-size: 48px; font-weight: 700; }
+      .group-title { font-size: 30px; font-weight: 700; }
+      .node-title { font-size: 27px; font-weight: 700; }
+      .body { font-size: 22px; fill: #555555; }
+      .node { stroke: #3F3F3F; stroke-width: 2.5; vector-effect: non-scaling-stroke; }
+      .relation { fill: none; stroke: #3F3F3F; stroke-width: 3; vector-effect: non-scaling-stroke; }
+    </style>
+    <marker id="template-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#3F3F3F"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="900" fill="#FFFFFF"/>
+  <g id="template-heading">
+    <text x="80" y="90" class="zh title">结构图标题</text>
+    <text x="80" y="132" class="en body">Replace this sample with one precise claim.</text>
+  </g>
+
+  <g id="template-relations">
+    <path d="M 610 450 H 990" class="relation" marker-end="url(#template-arrow)"
+          data-from="template-entry" data-to="template-process" data-relation="flow"/>
+  </g>
+
+  <g id="template-nodes">
+    <g id="template-entry">
+      <rect x="150" y="330" width="460" height="240" rx="16" fill="#C4DCE6" class="node"/>
+      <text x="190" y="405" class="zh node-title">入口 / 接口</text>
+      <text x="190" y="455" class="zh body">
+        <tspan x="190" dy="0">用一句短话描述角色</tspan>
+        <tspan x="190" dy="34">保留充足内边距</tspan>
+      </text>
+    </g>
+    <g id="template-process">
+      <rect x="990" y="330" width="460" height="240" rx="16" fill="#FBE7A6" class="node"/>
+      <text x="1030" y="405" class="zh node-title">处理 / 调度</text>
+      <text x="1030" y="455" class="zh body">
+        <tspan x="1030" dy="0">箭头接触节点边界</tspan>
+        <tspan x="1030" dy="34">文字不与连线竞争</tspan>
+      </text>
+    </g>
+  </g>
+
+  <g id="template-legend">
+    <text x="80" y="830" class="zh body">模板仅提供视觉语法；交付前替换示例内容、ID、标题与描述。</text>
+  </g>
+</svg>

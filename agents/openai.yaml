@@ -1,0 +1,5 @@
+interface:
+  display_name: "Diagram Design"
+  short_description: "从文档、代码或文字生成专业、可编辑且可验证的 SVG 与 PNG 图"
+  brand_color: "#C4DCE6"
+  default_prompt: "Use $design-diagrams to create a precise, readable SVG diagram and a high-resolution PNG preview from my source material."
