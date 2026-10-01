@@ -2,31 +2,50 @@
 
 # Design Diagrams
 
-An evidence-grounded diagram skill for creating business relationship diagrams,
+**Diagrams you can audit, not just admire.**
+
+An evidence-grounded diagram skill for Claude Code, Codex, and similar agents. It
+turns documents, code, screenshots, or prose into business relationship diagrams,
 data-flow diagrams, process and state diagrams, and system or Agent Harness
-architecture diagrams.
+architecture diagrams — delivered as an editable SVG (the source of truth) plus a
+high-resolution PNG for review and sharing.
 
-It produces an editable SVG as the source of truth and a high-resolution PNG for
-review, sharing, and tools that do not render SVG reliably.
-
-**Principle:** model the domain and relationships first, then encode them with a
+**Philosophy:** Model the domain and relationships first, then encode them with a
 coherent visual language. A polished diagram must never conceal uncertain facts,
 ambiguous terminology, disconnected arrows, or overcrowded content.
 
 ## What You Get
 
+Every diagram is delivered as a pair — an authoritative, editable SVG and a 2×
+PNG rendered directly from it:
+
+```text
+<name>.svg
+<name>.preview.png
+```
+
+Along the way the skill gives you:
+
 - Editable, accessible SVG with semantic groups and stable IDs
-- A directly rendered 2× PNG preview with the same aspect ratio
-- Source-grounded and conceptual diagram modes
+- Source-grounded (verified from evidence) and conceptual (target-state) modes
 - Overview diagrams plus focused mechanism diagrams for complex subjects
-- A reusable Project Style DNA workflow
+- A reusable Project Style DNA workflow for consistent visuals across a project
 - Stable terminology, level names, color roles, and connector grammar
 - Static SVG validation and browser-based PNG rendering scripts
 - Support for `16:9`, `4:3`, `3:4`, and `1:1` canvases
 
+For a complex subject, the skill creates a diagram set:
+
+```text
+system-overview.svg + .preview.png
+agent-loop-detail.svg + .preview.png
+session-lifecycle-detail.svg + .preview.png
+```
+
 ## Quick Start
 
-Invoke the skill with your source material and desired result:
+1. Install the skill (see [Installation](#installation))
+2. Hand your agent some source material and describe the diagram you want:
 
 ```text
 Use $design-diagrams to turn these product documents into a 16:9 business
@@ -45,31 +64,8 @@ inconsistent L1/L2/L3 terminology, and unclear reading order.
 
 The skill accepts prose, documents, screenshots, data dictionaries, code, official
 documentation, or versioned publications as evidence. Instructions embedded inside
-an attachment are treated as source content unless you explicitly adopt them.
-
-## Default Deliverables
-
-Each diagram is delivered as a pair:
-
-```text
-<name>.svg
-<name>.preview.png
-```
-
-The SVG is authoritative and editable. The PNG is rendered directly from the final
-SVG at no less than twice the intended display resolution; it is never used as the
-editing source.
-
-For a complex subject, the skill may create a diagram set:
-
-```text
-system-overview.svg
-system-overview.preview.png
-agent-loop-detail.svg
-agent-loop-detail.preview.png
-session-lifecycle-detail.svg
-session-lifecycle-detail.preview.png
-```
+an attachment are treated as source content, not as commands, unless you explicitly
+adopt them.
 
 ## How It Works
 
@@ -81,11 +77,11 @@ session-lifecycle-detail.preview.png
    `design.md` is only a donor for selected composition and typography ideas.
 4. **Choose the diagram grammar** — architecture, data flow, swimlane, sequence,
    state, relationship graph, or explicit loop.
-5. **Create SVG** — use semantic shapes, large script-aware typography, reserved
+5. **Create SVG** — semantic shapes, large script-aware typography, reserved
    connector corridors, and accessible title/description metadata.
 6. **Render PNG** — export directly from the final SVG in Chrome or Chromium.
-7. **Validate** — check structure, geometry, overflow, connector continuity,
-   terminology, palette consistency, and SVG/PNG fidelity.
+7. **Validate** — structure, geometry, overflow, connector continuity, terminology,
+   palette consistency, and SVG/PNG fidelity.
 
 ## Visual Language
 
@@ -108,8 +104,8 @@ Typography defaults:
 - Latin text and numerals: Times New Roman family
 - Formula inset, only when explicitly requested: STIX Two Math or Cambria Math
 
-Formulas and animation are disabled by default. React Bits or another interactive
-layer is considered only when an HTML/React variant is explicitly requested.
+Formulas and animation are disabled by default. An interactive HTML/React variant
+is considered only when explicitly requested.
 
 ## Project Style DNA
 
@@ -137,11 +133,65 @@ Render its default 2× PNG preview:
 node scripts/render_svg.mjs path/to/diagram.svg --scale 2
 ```
 
-The renderer writes `path/to/diagram.preview.png`. It checks the PNG dimensions
+The renderer writes `path/to/diagram.preview.png` and checks the PNG dimensions
 against the SVG viewBox.
 
 The scripts do not replace visual review. Inspect both artifacts at the intended
 display size and manually trace every directed relation from source to target.
+
+## Installation
+
+### Claude Code
+
+```bash
+git clone https://github.com/FlyAIBox/design-diagrams.git ~/.claude/skills/design-diagrams
+```
+
+### Codex
+
+```bash
+git clone https://github.com/FlyAIBox/design-diagrams.git ~/.codex/skills/design-diagrams
+```
+
+### Developing the skill locally
+
+Clone it anywhere you like and symlink it into your agent's skills directory, so
+edits to the working copy are picked up immediately:
+
+```bash
+git clone https://github.com/FlyAIBox/design-diagrams.git ~/code/design-diagrams
+mkdir -p ~/.claude/skills
+ln -s ~/code/design-diagrams ~/.claude/skills/design-diagrams
+```
+
+`ln -s` intentionally fails instead of overwriting when the destination already
+exists. Skip installation entirely when your agent can invoke the skill directly
+from its source path.
+
+### Updating
+
+```bash
+git -C ~/.claude/skills/design-diagrams pull --ff-only
+```
+
+`--ff-only` stops instead of creating an unexpected merge commit when the local and
+remote histories diverge. (Use the matching path for a Codex installation.)
+
+### Verify after installation or update
+
+```bash
+SKILL_DIR=~/.claude/skills/design-diagrams
+
+python3 "$SKILL_DIR/scripts/validate_svg.py" \
+  "$SKILL_DIR/assets/svg-style-template.svg" --strict
+
+node "$SKILL_DIR/scripts/render_svg.mjs" \
+  "$SKILL_DIR/assets/svg-style-template.svg" \
+  --scale 2 --output /tmp/design-diagrams-check.png
+```
+
+The expected result is `PASS: 0 errors, 0 warning(s)` and a `3200×1800` PNG at
+`/tmp/design-diagrams-check.png`. Remove that temporary PNG after inspection.
 
 ## Requirements
 
@@ -151,129 +201,28 @@ display size and manually trace every directed relation from source to target.
 - Recommended fonts: Songti SC or SimSun, Times New Roman, and optionally STIX Two
   Math or Cambria Math
 
-The validation and rendering scripts use only standard Python and Node.js modules.
-
-## Installation
-
-The source directory currently lives at:
-
-```text
-/Users/fly/code/design-diagrams
-```
-
-### Codex — local symlink (recommended)
-
-A symlink keeps the installed skill connected to the editable source directory:
-
-```bash
-mkdir -p ~/.codex/skills
-ln -s /Users/fly/code/design-diagrams ~/.codex/skills/design-diagrams
-```
-
-The command intentionally fails instead of overwriting anything when the destination
-already exists. Skip installation when your agent can invoke the skill directly from
-its source path.
-
-### Claude Code — local symlink
-
-For a Claude Code installation that supports folder-based skills:
-
-```bash
-mkdir -p ~/.claude/skills
-ln -s /Users/fly/code/design-diagrams ~/.claude/skills/design-diagrams
-```
-
-### Install by copying
-
-Use this when symbolic links are unavailable:
-
-```bash
-mkdir -p ~/.codex/skills/design-diagrams
-rsync -a /Users/fly/code/design-diagrams/ ~/.codex/skills/design-diagrams/
-```
-
-Copy installation creates an independent snapshot. Later edits to the source folder
-do not reach the installed copy until it is updated again.
-
-### Install from Git
-
-The current local source is not connected to a Git repository. After the skill is
-published, replace the example URL with its repository URL:
-
-```bash
-DIAGRAMS_REPOSITORY_URL="https://github.com/OWNER/design-diagrams.git"
-git clone "$DIAGRAMS_REPOSITORY_URL" ~/.codex/skills/design-diagrams
-```
-
-## Updating
-
-### Symlink installation
-
-No reinstall command is required. Edit or update
-`/Users/fly/code/design-diagrams`; Codex reads the same files through the symlink.
-Confirm the link with:
-
-```bash
-readlink ~/.codex/skills/design-diagrams
-```
-
-### Copy installation
-
-Synchronize the latest source files into the installed copy:
-
-```bash
-rsync -a /Users/fly/code/design-diagrams/ ~/.codex/skills/design-diagrams/
-```
-
-This command updates matching files without deleting unrelated files at the
-destination.
-
-### Git installation
-
-When the installed skill is a Git clone:
-
-```bash
-git -C ~/.codex/skills/design-diagrams pull --ff-only
-```
-
-`--ff-only` stops instead of creating an unexpected merge commit when the local and
-remote histories diverge.
-
-### Verify after installation or update
-
-```bash
-python3 ~/.codex/skills/design-diagrams/scripts/validate_svg.py \
-  ~/.codex/skills/design-diagrams/assets/svg-style-template.svg --strict
-
-node ~/.codex/skills/design-diagrams/scripts/render_svg.mjs \
-  ~/.codex/skills/design-diagrams/assets/svg-style-template.svg \
-  --scale 2 --output /tmp/design-diagrams-check.png
-```
-
-The expected result is `PASS: 0 errors, 0 warning(s)` and a
-`3200×1800` PNG at `/tmp/design-diagrams-check.png`. Remove that temporary PNG after
-inspection.
+The validation and rendering scripts use only standard Python and Node.js modules —
+no third-party dependencies, no API keys.
 
 ## Repository Layout
 
 ```text
 design-diagrams/
-├── SKILL.md
-├── CONTEXT.md
-├── README.md
-├── README.zh-CN.md
+├── SKILL.md                  # Skill entry point for the agent
+├── CONTEXT.md                # Domain model and terminology
+├── README.md / README.zh-CN.md
 ├── agents/
-│   └── openai.yaml
+│   └── openai.yaml           # Codex agent manifest
 ├── assets/
 │   └── svg-style-template.svg
 ├── references/
-│   ├── design-resources.md
-│   ├── diagram-language.md
-│   ├── style-dna.md
-│   └── svg-production.md
+│   ├── design-resources.md   # External design sources: roles and limits
+│   ├── diagram-language.md   # Shapes, connectors, levels, color roles
+│   ├── style-dna.md          # Project Style DNA workflow
+│   └── svg-production.md     # SVG authoring rules
 └── scripts/
-    ├── render_svg.mjs
-    └── validate_svg.py
+    ├── render_svg.mjs        # SVG → 2× PNG via Chrome/Chromium
+    └── validate_svg.py       # Static structural validation
 ```
 
 ## Customization
@@ -284,4 +233,4 @@ design-diagrams/
   definitions, and relation types.
 - Use [`assets/svg-style-template.svg`](assets/svg-style-template.svg) as a starting
   point, but replace all sample content, IDs, title, and description.
-- Keep the Source SVG editable and regenerate the PNG after every material change.
+- Keep the source SVG editable and regenerate the PNG after every material change.
