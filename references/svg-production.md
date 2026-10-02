@@ -93,6 +93,7 @@ For a process with defined traversal order, wrap its nodes, relations, and badge
 
 - Estimate text width before placing it in a node. At font-size N, assume about N units per CJK character and 0.5–0.6 N per Latin character; bold adds ~6%.
 - Keep at least 20 units of padding on each side inside the node rectangle at 1600×900 (the validator warns below 20 and flags any overshoot).
+- Text with no enclosing node rectangle is judged against the canvas instead: the validator flags a single unwrapped line that spans more than 45% of the canvas width and reads as a run-on (>24 CJK characters or >55 characters), or more than 75% of the width in any case. Wrap free text with `<tspan x="…" dy="…">` or shorten it.
 - If estimated width plus padding exceeds the node width, widen the node, wrap onto another `<tspan>`, or shorten the sentence — never shrink the font.
 - Shorten by rewriting as a natural sentence, not by clipping words into slogans; see "Natural wording" in [diagram-language.md](diagram-language.md).
 

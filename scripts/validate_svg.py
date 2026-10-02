@@ -7,7 +7,8 @@ This catches structural mistakes and common geometry risks:
 - ordered-flow sequence numbering and visible badges;
 - connector endpoints that stop short of, or sink inside, their data-from /
   data-to node rectangles;
-- text lines whose estimated width overflows, or crowds, the node rectangle.
+- text lines whose estimated width overflows, or crowds, the node rectangle,
+  and free text that spans a large share of the canvas width.
 
 It deliberately does not claim to replace browser rendering or manual connector
 tracing. Width estimates assume serif CJK/Latin mixes and err on the wide side.
@@ -481,6 +482,61 @@ def validate_ordered_flow(group: ET.Element, errors: list[str]) -> None:
         )
 
 
+def check_free_text_width(
+    root: ET.Element,
+    rects: dict[str, tuple[float, float, float, float]],
+    viewbox: tuple[float, float, float, float],
+    warnings: list[str],
+) -> None:
+    """Flag free text that would dominate the canvas width.
+
+    Text inside a node rectangle is already measured against that rectangle by
+    ``check_text_overflow``, so only text with no enclosing node is judged here.
+    The old character-count heuristic ignored the canvas size and fired on wide
+    canvases for lines that render fine; measuring the estimated width against
+    the viewBox instead catches real overflow and stops false positives.
+    """
+    css = parse_css_classes(root)
+    node_text: set[int] = set()
+    for group in root.iter():
+        if local_name(group.tag) == "g" and group.get("id") in rects:
+            for text in group.iter():
+                if local_name(text.tag) == "text":
+                    node_text.add(id(text))
+
+    limit = viewbox[2] * 0.75
+    readability = viewbox[2] * 0.45
+    for text in root.iter():
+        if local_name(text.tag) != "text" or id(text) in node_text:
+            continue
+        if any(local_name(child.tag) == "tspan" for child in text):
+            continue
+        content = re.sub(r"\s+", " ", text_content(text))
+        if not content:
+            continue
+        size, bold, anchor = resolve_font(text, css, (16.0, False, "start"))
+        width = estimate_text_width(content, size, bold)
+        cjk_count = len(re.findall(r"[\u3400-\u9fff]", content))
+        long_line = cjk_count > 24 or len(content) > 55
+        if width <= readability or (width <= limit and not long_line):
+            continue
+        x = number(text.get("x")) or 0.0
+        if anchor == "middle":
+            left, right = x - width / 2, x + width / 2
+        elif anchor == "end":
+            left, right = x - width, x
+        else:
+            left, right = x, x + width
+        if width > limit:
+            reason = f"spans {width / viewbox[2]:.0%} of the canvas width"
+        else:
+            reason = f"is {cjk_count} CJK chars / {len(content)} chars on one line"
+        warnings.append(
+            f"free text near id '{text.get('id', 'unnamed')}' {reason} "
+            f"({left:.0f}..{right:.0f}u); wrap it with <tspan> or shorten it: {content[:40]!r}"
+        )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("svg", type=Path, help="SVG file to validate")
@@ -568,6 +624,8 @@ def main() -> int:
     rects = node_rects(root)
     check_connector_endpoints(root, rects, warnings)
     check_text_overflow(root, rects, warnings)
+    if viewbox is not None:
+        check_free_text_width(root, rects, viewbox, warnings)
 
     for element in root.iter():
         name = local_name(element.tag)
@@ -600,14 +658,7 @@ def main() -> int:
             if not element.get("data-relation"):
                 warnings.append(f"{ident} should declare data-relation")
 
-        if name == "text":
-            content = re.sub(r"\s+", " ", text_content(element))
-            has_tspans = any(local_name(child.tag) == "tspan" for child in element)
-            cjk_count = len(re.findall(r"[\u3400-\u9fff]", content))
-            if not has_tspans and (cjk_count > 24 or len(content) > 55):
-                warnings.append(
-                    f"long unwrapped text near id '{element.get('id', 'unnamed')}': {content[:40]!r}"
-                )
+
 
     print(f"Elements with IDs: {len(ids)}")
     for warning in warnings:
