@@ -60,7 +60,7 @@ Not every diagram needs all five fills. Once a role is assigned in a Diagram Set
 ## Shapes and strokes
 
 - Use semantic shapes: containers for scope, rounded rectangles for components, cylinders only for real stores, diamonds only for decisions, and circles only for events or compact states.
-- At 1600×900, use roughly 2 units for quiet boundaries, 2.5–3 for nodes, and 3–4 for primary relations.
+- At 1600×900, use roughly 1.5 units for quiet boundaries, 2–2.5 for nodes, and 2.5–3 for primary relations. Keep strokes thin enough to avoid overwhelming small diagrams.
 - Use moderate corner radii, normally 12–18 units. Avoid pill-shaped boxes unless the subject is literally a token, tag, or status chip.
 - Use one arrowhead family per Diagram Set. Arrowheads must remain legible in the PNG Preview.
 - For an Ordered Flow, use compact 30–36 unit Sequence Badges with high-contrast numerals. Keep badge geometry consistent, position it beside the relation rather than inside a node, and leave the arrowhead unobstructed.
@@ -73,7 +73,8 @@ Not every diagram needs all five fills. Once a role is assigned in a Diagram Set
 - large decorative headings that compete with the diagram;
 - every node having a subtitle, badge, icon, border, and fill simultaneously;
 - tiny text used to avoid splitting a dense diagram;
-- decorative curves or arrows with no verb in the semantic brief.
+- decorative curves or arrows with no verb in the semantic brief;
+- strings of parallel four-to-five-character slogans (「表现有证据 / 操作有边界 / 中断后能续」-style lists) that read like generated filler; write each line as natural language a person would actually say.
 
 ## Adapting a Donor Design
 

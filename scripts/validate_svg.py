@@ -1,8 +1,16 @@
 #!/usr/bin/env python3
 """Static checks for editable, accessible diagram SVGs.
 
-This catches structural mistakes and common geometry risks. It deliberately does
-not claim to replace browser rendering or manual connector tracing.
+This catches structural mistakes and common geometry risks:
+
+- structure, ids, title/desc, viewBox profile, discouraged elements;
+- ordered-flow sequence numbering and visible badges;
+- connector endpoints that stop short of, or sink inside, their data-from /
+  data-to node rectangles;
+- text lines whose estimated width overflows, or crowds, the node rectangle.
+
+It deliberately does not claim to replace browser rendering or manual connector
+tracing. Width estimates assume serif CJK/Latin mixes and err on the wide side.
 """
 
 from __future__ import annotations
@@ -112,6 +120,287 @@ def check_simple_geometry(
 
 def text_content(element: ET.Element) -> str:
     return "".join(element.itertext()).strip()
+
+
+# ---------------------------------------------------------------------------
+# Geometry checks: connector endpoints and text overflow
+# ---------------------------------------------------------------------------
+
+CONNECTOR_SNAP_TOLERANCE = 1.0  # units: endpoint must sit on the boundary
+MIN_TEXT_PADDING = 20.0  # units at 1600×900 scale, each side
+
+
+def parse_css_classes(root: ET.Element) -> dict[str, dict[str, str]]:
+    """Extract `.class { prop: value; }` rules from inline <style> blocks."""
+    css = "".join(
+        element.text or ""
+        for element in root.iter()
+        if local_name(element.tag) == "style"
+    )
+    rules: dict[str, dict[str, str]] = {}
+    for selector, body in re.findall(r"\.([\w-]+)\s*\{([^}]*)\}", css):
+        props: dict[str, str] = {}
+        for declaration in body.split(";"):
+            if ":" in declaration:
+                key, value = declaration.split(":", 1)
+                props[key.strip()] = value.strip()
+        rules.setdefault(selector, {}).update(props)
+    return rules
+
+
+def estimate_text_width(text: str, font_size: float, bold: bool) -> float:
+    """Rough advance width for serif CJK/Latin mixes; errs on the wide side."""
+    width = 0.0
+    for char in text:
+        code = ord(char)
+        if (
+            0x3000 <= code <= 0x303F
+            or 0x3400 <= code <= 0x9FFF
+            or 0xFF00 <= code <= 0xFFEF
+        ):
+            width += 1.0
+        elif char == " ":
+            width += 0.25
+        elif char.isdigit():
+            width += 0.5
+        elif char.isupper():
+            width += 0.68
+        elif char.isalpha():
+            width += 0.46
+        elif char in ".,:;'":
+            width += 0.28
+        else:
+            width += 0.5
+    return width * font_size * (1.06 if bold else 1.0)
+
+
+def resolve_font(
+    element: ET.Element,
+    css: dict[str, dict[str, str]],
+    inherited: tuple[float, bool, str],
+) -> tuple[float, bool, str]:
+    size, bold, anchor = inherited
+    for cls in (element.get("class") or "").split():
+        rule = css.get(cls, {})
+        if "font-size" in rule:
+            size = number(rule["font-size"]) or size
+        if rule.get("font-weight") in {"700", "bold", "800", "900"}:
+            bold = True
+        if "text-anchor" in rule:
+            anchor = rule["text-anchor"]
+    if element.get("font-size"):
+        size = number(element.get("font-size")) or size
+    if element.get("font-weight") in {"700", "bold", "800", "900"}:
+        bold = True
+    if element.get("text-anchor"):
+        anchor = element.get("text-anchor") or anchor
+    return size, bold, anchor
+
+
+def node_rects(root: ET.Element) -> dict[str, tuple[float, float, float, float]]:
+    """Map each <g id> to the bounds of its first direct <rect> child."""
+    rects: dict[str, tuple[float, float, float, float]] = {}
+    for group in root.iter():
+        if local_name(group.tag) != "g" or not group.get("id"):
+            continue
+        if group.get("transform"):
+            continue
+        for child in group:
+            if local_name(child.tag) == "rect" and child.get("width"):
+                rects[group.get("id", "")] = (
+                    number(child.get("x")) or 0.0,
+                    number(child.get("y")) or 0.0,
+                    number(child.get("width")) or 0.0,
+                    number(child.get("height")) or 0.0,
+                )
+                break
+    return rects
+
+
+def check_text_overflow(
+    root: ET.Element,
+    rects: dict[str, tuple[float, float, float, float]],
+    warnings: list[str],
+) -> None:
+    css = parse_css_classes(root)
+    for group in root.iter():
+        group_id = group.get("id")
+        if local_name(group.tag) != "g" or group_id not in rects:
+            continue
+        rect_x, _rect_y, rect_w, _rect_h = rects[group_id]
+        for text in group.iter():
+            if local_name(text.tag) != "text":
+                continue
+            base = resolve_font(text, css, (16.0, False, "start"))
+            base_x = number(text.get("x")) or 0.0
+            lines: list[tuple[float, str, float, bool, str]] = []
+            tspans = [child for child in text if local_name(child.tag) == "tspan"]
+            if tspans:
+                for tspan in tspans:
+                    size, bold, anchor = resolve_font(tspan, css, base)
+                    x = number(tspan.get("x"))
+                    lines.append((base_x if x is None else x, (tspan.text or "").strip(), size, bold, anchor))
+            else:
+                lines.append((base_x, (text.text or "").strip(), *base))
+            for x, content, size, bold, anchor in lines:
+                if not content:
+                    continue
+                width = estimate_text_width(content, size, bold)
+                if anchor == "middle":
+                    left, right = x - width / 2, x + width / 2
+                elif anchor == "end":
+                    left, right = x - width, x
+                else:
+                    left, right = x, x + width
+                pad_left = left - rect_x
+                pad_right = rect_x + rect_w - right
+                if pad_right < 0 or pad_left < 0:
+                    warnings.append(
+                        f"text overflows node '{group_id}': {content[:30]!r} "
+                        f"(est. {width:.0f}u at {size:g}px; node width {rect_w:g}, "
+                        f"overshoot {max(-pad_left, -pad_right):.0f}u)"
+                    )
+                elif min(pad_left, pad_right) < MIN_TEXT_PADDING:
+                    warnings.append(
+                        f"text too close to node edge in '{group_id}': {content[:30]!r} "
+                        f"(padding {min(pad_left, pad_right):.0f}u < {MIN_TEXT_PADDING:g})"
+                    )
+
+
+def path_endpoints(d: str) -> list[tuple[float, float]]:
+    """Return absolute vertex positions of a path (start of each command and its end)."""
+    tokens = re.findall(r"[MmLlHhVvCcSsQqTtAaZz]|-?\d*\.?\d+(?:e-?\d+)?", d)
+    points: list[tuple[float, float]] = []
+    current = (0.0, 0.0)
+    start = (0.0, 0.0)
+    command = None
+    index = 0
+
+    def take(count: int) -> list[float]:
+        nonlocal index
+        values = [float(token) for token in tokens[index : index + count]]
+        index += count
+        return values
+
+    while index < len(tokens):
+        token = tokens[index]
+        if token.isalpha():
+            command = token
+            index += 1
+            if command in "Zz":
+                current = start
+                points.append(current)
+            continue
+        if command is None:
+            break
+        if command == "M":
+            current = tuple(take(2))  # type: ignore[assignment]
+            start = current
+            command = "L"
+        elif command == "m":
+            dx, dy = take(2)
+            current = (current[0] + dx, current[1] + dy)
+            start = current
+            command = "l"
+        elif command == "L":
+            current = tuple(take(2))  # type: ignore[assignment]
+        elif command == "l":
+            dx, dy = take(2)
+            current = (current[0] + dx, current[1] + dy)
+        elif command == "H":
+            current = (take(1)[0], current[1])
+        elif command == "h":
+            current = (current[0] + take(1)[0], current[1])
+        elif command == "V":
+            current = (current[0], take(1)[0])
+        elif command == "v":
+            current = (current[0], current[1] + take(1)[0])
+        elif command == "C":
+            values = take(6)
+            current = (values[4], values[5])
+        elif command == "c":
+            values = take(6)
+            current = (current[0] + values[4], current[1] + values[5])
+        elif command in "SQ":
+            values = take(4)
+            current = (values[2], values[3])
+        elif command in "sq":
+            values = take(4)
+            current = (current[0] + values[2], current[1] + values[3])
+        elif command == "T":
+            current = tuple(take(2))  # type: ignore[assignment]
+        elif command == "t":
+            dx, dy = take(2)
+            current = (current[0] + dx, current[1] + dy)
+        elif command == "A":
+            values = take(7)
+            current = (values[5], values[6])
+        elif command == "a":
+            values = take(7)
+            current = (current[0] + values[5], current[1] + values[6])
+        else:
+            index += 1
+            continue
+        points.append(current)
+    return points
+
+
+def distance_to_rect_boundary(
+    px: float, py: float, rect: tuple[float, float, float, float]
+) -> tuple[float, bool]:
+    """Distance from a point to the rect outline, plus whether the point is inside."""
+    x, y, w, h = rect
+    inside = x < px < x + w and y < py < y + h
+    if inside:
+        return min(px - x, x + w - px, py - y, y + h - py), True
+    dx = max(x - px, 0.0, px - (x + w))
+    dy = max(y - py, 0.0, py - (y + h))
+    return math.hypot(dx, dy), False
+
+
+def check_connector_endpoints(
+    root: ET.Element,
+    rects: dict[str, tuple[float, float, float, float]],
+    warnings: list[str],
+) -> None:
+    for element in root.iter():
+        name = local_name(element.tag)
+        if name not in {"path", "line", "polyline"} or element.get("transform"):
+            continue
+        source, target = element.get("data-from"), element.get("data-to")
+        if not source or not target:
+            continue
+        ident = element.get("id") or element.get("data-relation") or "unnamed connector"
+        if name == "line":
+            values = [number(element.get(key)) for key in ("x1", "y1", "x2", "y2")]
+            if any(value is None for value in values):
+                continue
+            points = [(values[0], values[1]), (values[2], values[3])]  # type: ignore[list-item]
+        elif name == "polyline":
+            raw = re.findall(r"-?\d*\.?\d+", element.get("points") or "")
+            if len(raw) < 4:
+                continue
+            coords = [float(value) for value in raw]
+            points = [(coords[0], coords[1]), (coords[-2], coords[-1])]
+        else:
+            points = path_endpoints(element.get("d") or "")
+            if len(points) < 2:
+                continue
+        for label, point, node_id in (("start", points[0], source), ("end", points[-1], target)):
+            rect = rects.get(node_id)
+            if rect is None:
+                continue  # target is not a plain rect node; needs manual review
+            distance, inside = distance_to_rect_boundary(point[0], point[1], rect)
+            if inside and distance > CONNECTOR_SNAP_TOLERANCE:
+                warnings.append(
+                    f"connector '{ident}' {label} ({point[0]:g},{point[1]:g}) is {distance:.0f}u "
+                    f"inside node '{node_id}' instead of on its boundary"
+                )
+            elif not inside and distance > CONNECTOR_SNAP_TOLERANCE:
+                warnings.append(
+                    f"connector '{ident}' {label} ({point[0]:g},{point[1]:g}) stops {distance:.0f}u "
+                    f"short of node '{node_id}' boundary"
+                )
 
 
 def validate_ordered_flow(group: ET.Element, errors: list[str]) -> None:
@@ -275,6 +564,10 @@ def main() -> int:
         validate_ordered_flow(group, errors)
     if ordered_groups:
         print(f"Ordered flows: {len(ordered_groups)}")
+
+    rects = node_rects(root)
+    check_connector_endpoints(root, rects, warnings)
+    check_text_overflow(root, rects, warnings)
 
     for element in root.iter():
         name = local_name(element.tag)

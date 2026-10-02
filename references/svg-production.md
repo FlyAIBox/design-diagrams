@@ -80,12 +80,21 @@ For a process with defined traversal order, wrap its nodes, relations, and badge
 
 - Markers and connector strokes use the same color.
 - Use `markerUnits="strokeWidth"` or test marker scaling explicitly.
-- Arrowheads touch the target boundary without entering the node's text area.
-- Source paths begin at the source boundary, not at its center behind the fill.
+- **Arrowheads must touch the target boundary at its exact edge, not inside the node or floating away from it.** Compute the endpoint from the node's rect (`x`, `x + width`, `y`, `y + height`); do not eyeball it.
+- **Source paths must begin precisely at the source boundary edge, not behind the fill or floating away from it.**
+- Curved paths (`Q`, `C`) are the usual culprit: the start and end points must sit on node edges even when the control points do not.
+- Keep strokes thin: at 1600×900 use 1.5–2 for node outlines and 2–2.5 for relations. Heavier lines make small gaps and overshoots more visible, not less.
 - Orthogonal routes use deliberate bends; avoid 1–3 unit accidental gaps at segment joins.
 - Give long loop-back paths a dedicated outer lane and a clear return point.
 - If several relations converge, draw a semantic junction; otherwise route them separately.
 - For an Ordered Flow, show `1, 2, 3, 4…` on the connectors without gaps or duplicates. Position each Sequence Badge away from the arrowhead, relation label, and node boundary. The final badge in a loop belongs to the return connector.
+
+**Text overflow prevention:**
+
+- Estimate text width before placing it in a node. At font-size N, assume about N units per CJK character and 0.5–0.6 N per Latin character; bold adds ~6%.
+- Keep at least 20 units of padding on each side inside the node rectangle at 1600×900 (the validator warns below 20 and flags any overshoot).
+- If estimated width plus padding exceeds the node width, widen the node, wrap onto another `<tspan>`, or shorten the sentence — never shrink the font.
+- Shorten by rewriting as a natural sentence, not by clipping words into slogans; see "Natural wording" in [diagram-language.md](diagram-language.md).
 
 The Source SVG must remain understandable in grayscale. Color supplements labels, shapes, and line styles.
 
@@ -124,6 +133,8 @@ Run static validation first:
 ```bash
 python3 <skill-dir>/scripts/validate_svg.py diagram.svg --strict
 ```
+
+The validator checks structure, ordered-flow numbering, connector endpoints against their `data-from`/`data-to` node rectangles, and estimated text width against node bounds. Fix every connector and overflow warning before rendering; do not silence them by removing `data-from`/`data-to`.
 
 Then inspect the SVG and PNG side by side at the intended display size:
 

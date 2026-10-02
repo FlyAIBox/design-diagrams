@@ -14,9 +14,9 @@
       .subtitle { font-size: 22px; fill: #555555; }
       .node-title { font-size: 28px; font-weight: 700; }
       .node-body { font-size: 21px; fill: #555555; }
-      .node { stroke: #3F3F3F; stroke-width: 2.5; vector-effect: non-scaling-stroke; }
-      .relation { fill: none; stroke: #8A6B19; stroke-width: 4; vector-effect: non-scaling-stroke; }
-      .badge { fill: #FFFFFF; stroke: #8A6B19; stroke-width: 3; vector-effect: non-scaling-stroke; }
+      .node { stroke: #3F3F3F; stroke-width: 2; vector-effect: non-scaling-stroke; }
+      .relation { fill: none; stroke: #8A6B19; stroke-width: 2.5; vector-effect: non-scaling-stroke; }
+      .badge { fill: #FFFFFF; stroke: #8A6B19; stroke-width: 2; vector-effect: non-scaling-stroke; }
       .badge-number { font-family: "Times New Roman", Times, serif; font-size: 22px; font-weight: 700; text-anchor: middle; dominant-baseline: central; fill: #242424; }
     </style>
     <marker id="ordered-template-arrow" viewBox="0 0 10 10" refX="9" refY="5"

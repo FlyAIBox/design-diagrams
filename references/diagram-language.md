@@ -114,3 +114,12 @@ Within a node, prefer:
 3. at most two compact details.
 
 Use connector labels for what moves or why the relationship exists. Use adjacent notes for caveats. Use the prose surrounding the diagram for explanations that do not affect visual structure.
+
+## Natural wording
+
+Node copy must read like something its author would say aloud, not like compressed slogans.
+
+- Avoid runs of parallel clipped phrases of identical length (「表现有证据、操作有边界、变化可比较、问题能追溯、中断后能续」). Truncating a phrase to force parallelism (「中断后能续」) is worse than one extra character.
+- Each line should contain a complete, specific statement: a subject or object plus a verb the reader can act on.
+- When a list is genuinely parallel, let line lengths vary naturally; do not pad or clip for symmetry.
+- Read every label aloud before delivery. If it sounds like machine-generated filler, rewrite it.
